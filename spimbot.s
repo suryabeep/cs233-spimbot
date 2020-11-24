@@ -96,8 +96,10 @@ bonk_interrupt:
         j       interrupt_dispatch      # see if other interrupts are waiting
 
 request_puzzle_interrupt:
-        sw      $0, REQUEST_PUZZLE_ACK
+        sw      $zero, REQUEST_PUZZLE_ACK
 #Fill in your code here
+        li $t1 1
+        sw $t1 puzzle_received
         j	interrupt_dispatch
 
 timer_interrupt:
