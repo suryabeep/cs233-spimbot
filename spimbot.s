@@ -51,6 +51,46 @@ main:
 
 #Fill in your code here
 
+#SOLVING THE PUZZLE
+        li $t0 0 #puzzle count
+        li $t1 10 #number of puzzles (10)
+        la $t2 puzzle 
+puzzle_loop:
+        bge $t0 $t1 puzzle_complete
+        sw $zero puzzle_received
+        sw $t2 REQUEST_PUZZLE
+puzzle_while:
+        lw $t0 puzzle_received
+        beq $t0 $zero puzzle_while
+
+        sub $sp $sp 20
+        sw $ra 0($sp)
+        sw $a0 4($sp)
+        sw $a1 8($sp)
+        sw $a2 12($sp)
+        sw $a3 16($sp)
+
+        la $a0 puzzle #set parameters for solve()
+        la $a1 heap
+        move $a2 $zero
+        move $a3 $zero
+        jal solve #call dominosa puzzle solve
+        # jal slow_solve_dominosa
+        la $t0 heap #store address of solution into register (modified by solve function)
+        sw $t0 SUBMIT_SOLUTION # store in SUBMIT_SOLUTION
+
+        lw $ra 0($sp)
+        lw $a0 4($sp)
+        lw $a1 8($sp)
+        lw $a2 12($sp)
+        lw $a3 16($sp)
+        sub $sp $sp 20
+
+        addi $t0 $t0 1
+        j puzzle_loop
+puzzle_complete:
+
+
 infinite:
         j       infinite              # Don't remove this! If this is removed, then your code will not be graded!!!
 
