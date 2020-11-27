@@ -75,12 +75,12 @@ infinite:
 angle_not_changed:
         # set velocity to 10
         li $t0 VELOCITY
-        li $t1 10
+        li $t1 80
         sw $t1 0($t0)
         # pickup
-        # li $t2 PICKUP
-        # li $t3 1
-        # sw $t3 0($t2)
+        li $t4 PICKUP
+        li $t5 1
+        sw $t5 0($t4)
         j       infinite              # Don't remove this! If this is removed, then your code will not be graded!!!
 
 .kdata
