@@ -37,6 +37,9 @@ puzzle:      .half 0:2000
 heap:        .half 0:2000
 #### Puzzle
 
+# Angle state
+angle_state:    .word 32
+angle_changed:  .word 0
 
 
 .text
@@ -50,48 +53,34 @@ main:
 	    mtc0    $t4, $12
 
 #Fill in your code here
-
-#SOLVING THE PUZZLE
-        li $t0 0 #puzzle count
-        li $t1 10 #number of puzzles (10)
-        la $t2 puzzle 
-puzzle_loop:
-        bge $t0 $t1 puzzle_complete
-        sw $zero puzzle_received
-        sw $t2 REQUEST_PUZZLE
-puzzle_while:
-        lw $t0 puzzle_received
-        beq $t0 $zero puzzle_while
-
-        sub $sp $sp 20
-        sw $ra 0($sp)
-        sw $a0 4($sp)
-        sw $a1 8($sp)
-        sw $a2 12($sp)
-        sw $a3 16($sp)
-
-        la $a0 puzzle #set parameters for solve()
-        la $a1 heap
-        move $a2 $zero
-        move $a3 $zero
-        jal solve #call dominosa puzzle solve
-        # jal slow_solve_dominosa
-        la $t0 heap #store address of solution into register (modified by solve function)
-        sw $t0 SUBMIT_SOLUTION # store in SUBMIT_SOLUTION
-
-        lw $ra 0($sp)
-        lw $a0 4($sp)
-        lw $a1 8($sp)
-        lw $a2 12($sp)
-        lw $a3 16($sp)
-        sub $sp $sp 20
-
-        addi $t0 $t0 1
-        j puzzle_loop
-puzzle_complete:
-
-
+  
 infinite:
+        # if (angle_changed != 0)
+        la $t0 angle_changed
+        lw $t0 0($t0)
+        beq $t0 $0 angle_not_changed
+                lw   $t0 angle_state
+                li   $t1 360
+                div  $t0 $t1
+                mfhi $t0
+                li   $t1 ANGLE
+                li   $t2 ANGLE_CONTROL
+                li   $t3 1
+                sw   $t0 0($t1)
+                sw   $t3 0($t2)
+                la  $t0 angle_changed
+                li  $t1 0
+                sw  $t1 0($t0)  # lower angle_changed flag
+
+angle_not_changed:
+        # set velocity to 10
+        li $t0 VELOCITY
+        li $t1 80
+        sw $t1 0($t0)
+        # pickup
+        li $t4 PICKUP
+        li $t5 1
+        sw $t5 0($t4)
         j       infinite              # Don't remove this! If this is removed, then your code will not be graded!!!
 
 .kdata
@@ -133,6 +122,24 @@ interrupt_dispatch:                     # Interrupt:
 bonk_interrupt:
         sw      $0, BONK_ACK
 #Fill in your code here
+        # uint32_t x = state->a;
+	# x ^= x << 13;
+	# x ^= x >> 17;
+	# x ^= x << 5;
+	# return state->a = x;
+        la  $t0 angle_state;
+        lw  $t1 0($t0)
+        sll $t2 $t1 13
+        xor $t1 $t1 $t2
+        srl $t2 $t1 17
+        xor $t1 $t1 $t2
+        sll $t2 $t1 5
+        xor $t1 $t1 $t2   # t1 now holds a random 32 bit number
+        sw  $t1 0($t0)  # set the angle state to the new random number
+        la  $t0 angle_changed
+        li  $t1 1
+        sw  $t1 0($t0)  # raise angle_changed flag
+
         j       interrupt_dispatch      # see if other interrupts are waiting
 
 request_puzzle_interrupt:
