@@ -1,0 +1,2 @@
+To start, we decided to implement the random walk solution as a quick 70 points.
+Simultaneously, we worked on solving puzzles to get the puzzlecoins.
