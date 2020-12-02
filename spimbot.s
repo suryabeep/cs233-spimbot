@@ -606,7 +606,7 @@ request_puzzle_interrupt:
         sw      $zero, REQUEST_PUZZLE_ACK
 #Fill in your code here
         li $t1 1
-        sw $t1 puzzle_received
+        sw $t1 has_puzzle
         j	interrupt_dispatch
 
 timer_interrupt:
