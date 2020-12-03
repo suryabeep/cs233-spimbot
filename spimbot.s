@@ -105,6 +105,7 @@ puzzle_while:
         addi $t0 $t0 1
         j puzzle_loop
 puzzle_complete:
+        # Add 10 coins to "coins"
         lw $t5 coins
         addi $t5 $t5 10
         sw $t5 coins
