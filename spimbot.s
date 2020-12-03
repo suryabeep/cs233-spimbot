@@ -29,7 +29,7 @@ REQUEST_PUZZLE_ACK      = 0xffff00d8  ## Puzzle
 PICKUP                  = 0xffff00f4
 
 # Add any MMIO that you need here (see the Spimbot Documentation)
-
+SPAWN_MINIBOT           = 0xffff00dc
 ### Puzzle
 GRIDSIZE = 8
 has_puzzle:        .word 0                         
@@ -62,15 +62,18 @@ puzzle_loop:
         sw $zero has_puzzle
         sw $t2 REQUEST_PUZZLE
 puzzle_while:
-        lw $t0 has_puzzle
-        beq $t0 $zero puzzle_while
+        lw $t3 has_puzzle
+        beq $t3 $zero puzzle_while
 
-        sub $sp $sp 20
+        sub $sp $sp 32
         sw $ra 0($sp)
         sw $a0 4($sp)
         sw $a1 8($sp)
         sw $a2 12($sp)
         sw $a3 16($sp)
+        sw $t0 20($sp)
+        sw $t1 24($sp)
+        sw $t2 28($sp)
 
         la $a0 puzzle #set parameters for solve()
         la $a1 heap
@@ -78,14 +81,17 @@ puzzle_while:
         move $a3 $zero
         jal solve #call dominosa puzzle solve
         # jal slow_solve_dominosa
-        la $t0 heap #store address of solution into register (modified by solve function)
-        sw $t0 SUBMIT_SOLUTION # store in SUBMIT_SOLUTION
+        la $t3 heap #store address of solution into register (modified by solve function)
+        sw $t3 SUBMIT_SOLUTION # store in SUBMIT_SOLUTION
 
         lw $ra 0($sp)
         lw $a0 4($sp)
         lw $a1 8($sp)
         lw $a2 12($sp)
         lw $a3 16($sp)
+        lw $t0 20($sp)
+        lw $t1 24($sp)
+        lw $t2 28($sp)
         sub $sp $sp 20
 
         addi $t0 $t0 1
@@ -95,6 +101,7 @@ puzzle_complete:
 #MOVEMENT
 infinite:
         # if (angle_changed != 0)
+        # sw $zero SPAWN_MINIBOT
         la $t0 angle_changed
         lw $t0 0($t0)
         beq $t0 $0 angle_not_changed
@@ -605,8 +612,8 @@ bonk_interrupt:
 request_puzzle_interrupt:
         sw      $zero, REQUEST_PUZZLE_ACK
 #Fill in your code here
-        li $t1 1
-        sw $t1 has_puzzle
+        li $t4 1
+        sw $t4 has_puzzle
         j	interrupt_dispatch
 
 timer_interrupt:
