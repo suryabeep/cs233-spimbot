@@ -35,6 +35,7 @@ GRIDSIZE = 8
 has_puzzle:        .word 0                         
 puzzle:      .half 0:2000             
 heap:        .half 0:2000
+coins:            .word 0  # DON"T KNOW IF THIS IS THE RIGHT WAY TO STORE VARIABLES
 #### Puzzle
 
 # Angle state
@@ -53,7 +54,14 @@ main:
 	    mtc0    $t4, $12
 
 #Fill in your code here
-#SOLVING THE PUZZLE
+
+
+sw $zero coins
+infinite:
+        lw $t5 coins
+        bgt $t5 $zero NOPUZZLE
+
+        #SOLVING THE PUZZLE
         li $t0 0 #puzzle count
         li $t1 10 #number of puzzles (10)
         la $t2 puzzle 
@@ -97,9 +105,14 @@ puzzle_while:
         addi $t0 $t0 1
         j puzzle_loop
 puzzle_complete:
-
-#MOVEMENT
-infinite:
+        lw $t5 coins
+        addi $t5 $t5 10
+        sw $t5 coins
+NOPUZZLE:
+        #lw $t5 coins
+        #addi $t5 $t5 -1  # SOMETHING HERE SEEMS OFF. NEED TO INVESTIGATE
+        #sw $t5 coins
+        #MOVEMENT
         # if (angle_changed != 0)
         # sw $zero SPAWN_MINIBOT
         la $t0 angle_changed
