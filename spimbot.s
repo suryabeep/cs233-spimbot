@@ -79,8 +79,8 @@ puzzle_while:
         la $a1 heap
         move $a2 $zero
         move $a3 $zero
-        jal solve #call dominosa puzzle solve
-        # jal slow_solve_dominosa
+        #jal solve #call dominosa puzzle solve
+        jal slow_solve_dominosa
         la $t3 heap #store address of solution into register (modified by solve function)
         sw $t3 SUBMIT_SOLUTION # store in SUBMIT_SOLUTION
 
@@ -92,7 +92,7 @@ puzzle_while:
         lw $t0 20($sp)
         lw $t1 24($sp)
         lw $t2 28($sp)
-        sub $sp $sp 20
+        sub $sp $sp 32
 
         addi $t0 $t0 1
         j puzzle_loop
