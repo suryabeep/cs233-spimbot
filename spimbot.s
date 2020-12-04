@@ -32,10 +32,13 @@ PICKUP                  = 0xffff00f4
 SPAWN_MINIBOT           = 0xffff00dc
 ### Puzzle
 GRIDSIZE = 8
+MAX_ADV_BOTS = 2
 has_puzzle:        .word 0                         
 puzzle:      .half 0:2000             
 heap:        .half 0:2000
 coins:            .word 0  # DON"T KNOW IF THIS IS THE RIGHT WAY TO STORE VARIABLES
+num_adv_bots:     .word 0
+num_basic_bots:         .word 0
 #### Puzzle
 
 # Angle state
@@ -116,6 +119,23 @@ NOPUZZLE:
         #MOVEMENT
         # if (angle_changed != 0)
         # sw $zero SPAWN_MINIBOT
+
+        # Leo's Planned code
+        lw $t5 num_adv_bots
+        beq $t5 MAX_ADV_BOTS no_adv_bots
+        # Check if there is enough kernels then spawn both bots
+        # Mark the center to be the silo place
+        # Make the Silo
+        # Set num_adv_bots to 2
+
+no_adv_bots:
+
+        # Leo's Planned code
+        # Check if there are less than certain num of bots
+        # Add new bots if we can afford by having excess coins and kernels over a certain amount
+        # Spawn bots
+        # Otherwise go to regular actions
+
         la $t0 angle_changed
         lw $t0 0($t0)
         beq $t0 $0 angle_not_changed
