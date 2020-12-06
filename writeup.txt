@@ -4,7 +4,6 @@ Simultaneously, we worked on solving puzzles to get the puzzlecoins.
 ## Usage of Minibots:
  - We rely on one specific idea for our method of winning. Swarming
     - The general idea is that if we can afford it and if there aren't enough minibots in the map then we will spawn a basic minibot.
-    - This also means that we will need to create five silos in each corner of the map. The reason behind this so that we can handle the randomness of these basic bots
-    - If it is that we cannot afford a minibot then we will solve a couple puzzles and make sure that we also have enough kernals to do this.
-    - The swarm factor is that we are reallying on the possibility that with so many randoms bots they will for sure reach the silos
-    - This is also a really aggressive tactice since we will get the opportunity of destroying their minibots too if they use them in a strategic way.
+    - This also means that we will need to create one silo. The reason behind this so that we can handle the randomness of these basic bots
+    - The goal is that with the randomness of the basic bots they will either be on the offensive with our opponents and or go to our silo which we used to build our advanced bots with.
+    - Hopefully if this goes well then kernels will work well
