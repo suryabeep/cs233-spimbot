@@ -30,15 +30,22 @@ PICKUP                  = 0xffff00f4
 
 # Add any MMIO that you need here (see the Spimbot Documentation)
 SPAWN_MINIBOT           = 0xffff00dc
+GET_NUM_KERNEL          = 0xffff2010
+SET_TARGET_TILE         = 0xffff00e8
+SELECT_IDLE_MINIBOTS    = 0xffff00e4
+BUILD_SILO              = 0xffff2000
+
 ### Puzzle
 GRIDSIZE = 8
-MAX_ADV_BOTS = 2
 has_puzzle:        .word 0                         
-puzzle:      .half 0:2000             
+puzzle:      .half 0:2000   
+kernels:     .word 0:2000          
 heap:        .half 0:2000
 coins:            .word 0  # DON"T KNOW IF THIS IS THE RIGHT WAY TO STORE VARIABLES
 num_adv_bots:     .word 0
-num_basic_bots:         .word 0
+curr_x:             .word 0
+curr_y:              .word 0
+elapsed_time:         .word 50
 #### Puzzle
 # Angle state
 angle_state:    .word 32
@@ -101,18 +108,60 @@ infinite:
         # if (angle_changed != 0)
         # sw $zero SPAWN_MINIBOT
         # Leo's Planned code
-        lw $t5 num_adv_bots
-        beq $t5 MAX_ADV_BOTS no_adv_bots
-        # Check if there is enough kernels then spawn both bots
-        # Mark the center to be the silo place
-        # Make the Silo
-        # Set num_adv_bots to 2
+
+        lw $t5, curr_x
+        lw $t6, curr_y
+        lw $t3, BOT_X
+        lw $t4, BOT_Y
+        beq $t5, $t3 no_adv_bots
+        beq $t4, $t6 no_adv_bots
+        sw $t3, curr_x
+        sw $t4, curr_y
+
+        la $t5, kernels
+        sw $t5, GET_NUM_KERNEL
+        lw $t5, kernels
+        li $t6, 2
+        ble $t5, $t6, no_adv_bots
+
+        lw $t5, num_adv_bots
+        li $t6, 3
+        bge $t5, $t6, no_adv_bots
+        add $t5, $t5, 1
+        sw $t5, num_adv_bots
+
+        li $t5, 1
+        sw $t5, SPAWN_MINIBOT
+        # Check !Spawned_adv_Bots
+        # Spawn all three bots, set the target
+        # Where to set the silo and the target of the bots
+        # Center for now
+
 no_adv_bots:
-        # Leo's Planned code
-        # Check if there are less than certain num of bots
-        # Add new bots if we can afford by having excess coins and kernels over a certain amount
-        # Spawn bots
-        # Otherwise go to regular actions
+        li $t5, 1
+        sw $t5, SELECT_IDLE_MINIBOTS
+        li $t5, 0x2
+        sw $t5, SET_TARGET_TILE
+        li $t5, 0x2
+        sw $t5, BUILD_SILO
+
+        lw $t5, num_adv_bots
+        li $t6, 3
+        blt $t5, $t6, no_spawn
+ 
+        sw $zero, SPAWN_MINIBOT
+        li $t5, 5
+        sw $t5, elapsed_time
+        # Load counter, check if it is equal to the constant
+        # If it is spawn bot
+        # reset elapsed time
+        # else do nothing for that
+
+no_spawn:
+        lw $t5, elapsed_time
+        sub $t5, $t5, 1
+        sw $t5, elapsed_time
+
         la $t0 angle_changed
         lw $t0 0($t0)
         beq $t0 $0 angle_not_changed
